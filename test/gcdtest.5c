@@ -1,0 +1,53 @@
+int function gcd_euclid (int u, int v)
+{
+    int steps = 0;
+    if (u == 0 || v == 0)
+	return 0;
+    while (v > 0)
+    {
+	int t = u % v;
+	u = v;
+	v = t;
+	steps++;
+    }
+    return u;
+}
+
+autoimport PRNG;
+
+bool gcd_verify = true;
+
+exception bad_gcd (int u, int v);
+
+void function gcd_check (int u, int v)
+{
+    int	weber = gcd (u,v);
+    if (gcd_verify)
+    {
+	int euclid = gcd_euclid (u,v);
+	if (weber != euclid)
+	    raise bad_gcd (u,v);
+    }
+    else
+	for (int i = 0; i < 100; i++)
+	    int	weber = gcd (u,v);
+}
+
+void function gcd_random (int ubits, int vbits)
+{
+    int	    u = randbits (ubits);
+    int	    v = randbits (vbits);
+
+    gcd_check (u, v);
+}
+
+void function gcd_test (int amin, int amax, int bmin, int bmax)
+{
+    int	a, b;
+
+    for (a = amin; a <= amax; a += randint(10))
+	for (b = bmin; b <= bmax; b += randint(10))
+	    gcd_random (a, b);
+}
+
+gcd_test (2, 200, 2, 200)

@@ -1,0 +1,21 @@
+/*
+ * Check the PRNG for a balanced low bit
+ *
+ * Copyright © 2001  Bart Massey.
+ * All Rights Reserved.  See the file COPYING in this directory
+ * for licensing information.
+ *
+ * Bart 2001/3
+ */
+
+autoimport PRNG;
+
+int[*] t(int n) {
+  int[2] s = {0, 0};
+  int i;
+  for (i = 0; i < n; i++)
+    s[randint(2)]++;
+  return s;
+}
+
+File::printf ("%d %d\n", t (string_to_integer (argv[1]))...);

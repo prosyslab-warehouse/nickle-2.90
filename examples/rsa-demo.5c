@@ -1,0 +1,37 @@
+/*
+ * Demo of RSA implementation
+ *
+ * Copyright © 2001  Bart Massey.
+ * All Rights Reserved.  See the file COPYING in this directory
+ * for licensing information.
+ *
+ * Bart 2001/03
+ */
+
+autoload Numbers;
+autoimport RSA;
+autoimport MillerRabin;
+autoload PRNG;
+
+nbits = 512;   /* number of bits in each prime of key: >= 65 */
+prec = 64;     /* lg probability that some prime is not */
+
+int p = primebits(nbits, prec);
+printf("p = %d\n", p);
+int q = primebits(nbits, prec);
+printf("q = %d\n", q);
+int e = primebits(12, prec);
+printf("e = %d\n", e);
+int m = PRNG::randbits(128);
+printf("m = %d\n", m);
+
+set_public_key(p * q, e);
+int c = encrypt(m);
+printf("c = %d\n", c);
+
+set_private_key(p, q, e);
+int m1 = decrypt(c);
+if (m1 == m)
+  printf("decryption successful\n");
+else
+  printf("decryption failed\n");

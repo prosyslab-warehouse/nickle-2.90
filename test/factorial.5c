@@ -1,0 +1,61 @@
+/*
+ * Nickle test suite
+ *
+ * factorial tests
+ */
+
+int errors = 0;
+
+int fact(int n) {
+    int r = 1;
+    while (n > 1) {
+    	r *= n;
+	n--;
+    }
+    return r;
+}
+
+void check_factorial(int max) {
+     for (int n = 0; n < max; n++) {
+	 int is = n!;
+     	 int should = fact(n);
+
+     	 if (is != should) {
+	    printf ("check failed %d! (was %d should be %d)\n",
+	    	    n, is, should);
+	    ++errors;
+	 }
+     }
+}
+
+real stirling (real n)
+{
+    n = imprecise (n);
+    return sqrt (2 * pi * n) * (n / Math::e) ** n;
+}
+
+void check_one_stirling(int v) {
+	real s = stirling(v);
+	real f = v!;
+	real r = f/s;
+	real e = 0.1/v;
+	if (r < 1 || r > (1 + e)) {
+		printf("check failed %d! (was %d should be close to %g)\n",
+		       v, f, s);
+		++errors;
+	}
+}
+
+void check_stirling(int rep) {
+	real v = 13;
+	while (rep-- > 0) {
+		int iv = floor(v);
+		check_one_stirling(iv);
+		v = v * 3 + 2;
+	}
+}
+
+check_stirling(10);
+check_factorial(1000);
+
+exit (errors);

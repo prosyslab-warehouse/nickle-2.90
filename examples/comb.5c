@@ -1,0 +1,27 @@
+/*
+ * Basic combinatorics
+ * Copyright © 1995-2001 Bart Massey.
+ * All Rights Reserved.  See the file COPYING in this directory
+ * for licensing information.
+ */
+
+namespace Comb {
+
+  public int perm(n, r) {
+    return n! // r!;
+  }
+
+  public int choose(n, r) {
+    return n! // (r! * (n - r)!);
+  }
+
+  public int binom(n, k) {
+    int sum, i;
+
+    sum = 1;
+    for (i = 1; i <= k; i++)
+	  sum += choose(n, i);
+    return sum;
+  }
+
+}

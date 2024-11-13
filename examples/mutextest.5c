@@ -1,0 +1,101 @@
+/*
+ * Let a potentially large number of threads wait
+ * for a mutex.
+ *
+ * Copyright © 2001  Keith Packard
+ * All Rights Reserved.  See the file COPYING in this directory
+ * for licensing information.
+ */
+
+autoimport Mutex;
+bool die;
+
+typedef struct {
+    mutex	mut_ex;
+    string	name;
+} named_mutex;
+
+int[*]		owned;
+named_mutex[*]	mutexes;
+mutex		owned_mutex = Mutex::new();
+semaphore	started = Semaphore::new (0);
+
+void status ()
+{
+    int nt = dim (owned);
+    int i;
+
+    
+    twixt (acquire (owned_mutex); release (owned_mutex))
+    {
+	for (i = 0; i < nt; i++)
+	{
+	    if (owned[i] >= 0)
+		printf ("%s", mutexes[owned[i]].name);
+	    else
+		printf (" ");
+	}
+	printf ("\n");
+    }
+}
+
+void t (*(named_mutex[*]) mutexes, int self, int delay)
+{
+    int i;
+    
+    Semaphore::signal (started);
+    die = false;
+    while (!die)
+    {
+	for (i = 0; !die && i < dim (*mutexes); i++)
+	{
+	    twixt (acquire ((*mutexes)[i].mut_ex); 
+		   release ((*mutexes)[i].mut_ex))
+	    {
+		twixt (acquire (owned_mutex); release (owned_mutex))
+		    owned[self] = i;
+		/* status(); */
+		sleep (delay);
+		twixt (acquire (owned_mutex); release (owned_mutex))
+		    owned[self] = -1;
+	    }
+	   /*  printf ("Thread %v done with %v\n", Thread::current (),
+		    (*mutexes)[i].mut_ex);*/
+	}
+    }
+}
+
+void start (int nthread, int nmut_ex, int delay)
+{
+    int i;
+
+    owned = (int [nthread]) {};
+    for (i = 0; i < nthread; i++)
+	owned[i] = -1;
+    mutexes = (named_mutex [nmut_ex]) {};
+    for (i = 0; i < nmut_ex; i++)
+    {
+	mutexes[i] = (named_mutex) {
+	    .mut_ex = new (),
+	    .name = String::new('A' + i)
+	};
+    }
+    for (i = 0; i < nthread; i++)
+    {
+	fork (t (&mutexes, i, delay));
+	Semaphore::wait (started);
+    }
+}
+
+void monitor (int delay)
+{
+    for (;;)
+    {
+	status ();
+	sleep (delay);
+    }
+}
+
+start (20, 10, 100);
+monitor (200);
+    
